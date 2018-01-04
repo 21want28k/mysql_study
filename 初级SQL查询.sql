@@ -11,7 +11,7 @@ having count(ID) >= 2;
 # 找出在2009年秋季和2010年春季学期同时开课的所有课程
 # 方法1：交集
 select course_id
-from(select *
+from(	select *
 	from section
 	where semester = 'Fall' and year = 2009
 	union all
@@ -27,16 +27,16 @@ having count(*) > 1;
 select course_id
 from section
 where semester = 'Fall' and year = 2009 and course_id in(
-														select course_id
-														from section
-														where semester = 'Spring' and year = 2010
-														);
+							select course_id
+							from section
+							where semester = 'Spring' and year = 2010
+							);
 # 0.00032sec
 # 找出（不同的）学生总数，他们选修了ID为10101的教师所教授的课程段
 select count(distinct ID)
 from takes
 where (course_id, sec_id, semester, year) in (
-											  select course_id, sec_id, semester, year
+					      select course_id, sec_id, semester, year
                                               from teaches
                                               where ID = 10101
                                               );
@@ -56,7 +56,7 @@ where T.salary > S.salary and S.dept_name = 'Biology';
 select name
 from instructor
 where salary > some (select salary
-				     from instructor
+		     from instructor
                      where dept_name = 'Biology'
                      );
 
@@ -65,7 +65,7 @@ where salary > some (select salary
 select name
 from instructor
 where salary > all  (select salary
-				     from instructor
+		     from instructor
                      where dept_name = 'Biology'
                      );
 
@@ -109,11 +109,12 @@ insert into instructor
 update instructor
 set salary = salary * 1.05
 where salary < (
-				select avg_salary
-				from
-                (select avg(salary) as avg_salary
+		select avg_salary
+		from
+                (
+		select avg(salary) as avg_salary
                 from instructor
-				)as avg_select
+		)as avg_select
                 );
 /*
 mysql里面有一个很奇怪的东西，MYSQL之You can't specify target table for update in FROM clause
@@ -124,15 +125,15 @@ mysql里面有一个很奇怪的东西，MYSQL之You can't specify target table 
 
 update instructor
 set salary = case
-			when salary < 100000 then salary * 1.05
-            else salary * 1.03
+		when salary < 100000 then salary * 1.05
+                else salary * 1.03
 		end;
 # 好像非要这么写
 
 # 当学生成功完成自己的课程（学分不是F，并且不为null的时候），算出它的总学分并且更新进学生表的tot_cred里面
 update student S
 set tot_cred = (
-				select sum(credits)
+		select sum(credits)
                 from takes natural join course
                 where takes.ID = S.ID and
                 grade <> 'F' and
@@ -151,7 +152,7 @@ group by course_id, sec_id
 select course_id, sec_id
 from takes_number
 where num_ID = (
-				select max(num_ID)
+		select max(num_ID)
                 from takes_number
                 );
 # 不支持定义临时表，想到用视图也可以解决这个问题，先找出2009年秋季选修的课程段人数，然后再在这个里面用子查询找出人数是最多人选的那个课程
